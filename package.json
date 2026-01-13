@@ -7,7 +7,14 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "api": "cd api && uvicorn main:app --reload --port 8000"
+    "lint:fix": "next lint --fix",
+    "api": "cd api && uvicorn main:app --reload --port 8000",
+    "test": "cd api && python -m pytest tests -v",
+    "test:watch": "cd api && python -m pytest ../tests -v --watch",
+    "format:python": "ruff format api tests && ruff check --fix api tests",
+    "format:js": "npm run lint:fix",
+    "format": "npm run format:python && npm run format:js",
+    "test:all": "npm run test && npm run lint"
   },
   "dependencies": {
     "react": "^18.3.1",
@@ -18,6 +25,8 @@
     "@types/node": "^20.14.0",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "@typescript-eslint/parser": "^6.21.0",
     "typescript": "^5.5.0",
     "tailwindcss": "^3.4.1",
     "postcss": "^8.4.38",

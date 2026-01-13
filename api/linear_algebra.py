@@ -141,3 +141,64 @@ def compute_pca(data: np.ndarray) -> dict:
         "projected_data": projected_data,
         "mean": mean,
     }
+
+
+def create_rotation_matrix(angle: float) -> np.ndarray:
+    """
+    Create a 2D rotation matrix
+
+    Args:
+        angle: Rotation angle in radians
+
+    Returns:
+        2x2 rotation matrix
+    """
+    cos_a = np.cos(angle)
+    sin_a = np.sin(angle)
+    return np.array([[cos_a, -sin_a], [sin_a, cos_a]])
+
+
+def create_scale_matrix(sx: float, sy: float) -> np.ndarray:
+    """
+    Create a 2D scaling matrix
+
+    Args:
+        sx: Scale factor in x direction
+        sy: Scale factor in y direction
+
+    Returns:
+        2x2 scaling matrix
+    """
+    return np.array([[sx, 0], [0, sy]])
+
+
+def create_reflection_matrix(axis: str = "x") -> np.ndarray:
+    """
+    Create a 2D reflection matrix
+
+    Args:
+        axis: "x" or "y" to reflect across that axis
+
+    Returns:
+        2x2 reflection matrix
+    """
+    if axis == "x":
+        return np.array([[1, 0], [0, -1]])
+    elif axis == "y":
+        return np.array([[-1, 0], [0, 1]])
+    else:
+        raise ValueError("Axis must be 'x' or 'y'")
+
+
+def create_shear_matrix(kx: float, ky: float) -> np.ndarray:
+    """
+    Create a 2D shearing matrix
+
+    Args:
+        kx: Shear factor in x direction
+        ky: Shear factor in y direction
+
+    Returns:
+        2x2 shearing matrix
+    """
+    return np.array([[1, kx], [ky, 1]])

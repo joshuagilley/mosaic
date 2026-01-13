@@ -17,7 +17,12 @@ export default function VektorPage() {
   const [showGrid, setShowGrid] = useState(true);
   const [showVector, setShowVector] = useState(true);
   const [pcaData, setPcaData] = useState<number[][] | null>(null);
-  const [pcaResult, setPcaResult] = useState<any>(null);
+  const [pcaResult, setPcaResult] = useState<{
+    principal_components: number[][];
+    explained_variance: number[];
+    projected_data: number[][];
+    mean: number[];
+  } | null>(null);
   const [currentMode, setCurrentMode] = useState('Transform');
   const [error, setError] = useState<string | null>(null);
 
@@ -88,8 +93,8 @@ export default function VektorPage() {
       }
 
       setError(null);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unknown error');
     }
   }, [matrix, vector, showEigen, API_BASE]);
 
@@ -101,12 +106,13 @@ export default function VektorPage() {
 
   useEffect(() => {
     updateMatrix();
-  }, [matrix, showEigen]);
+  }, [updateMatrix]);
 
   useEffect(() => {
     if (canvasRef.current) {
       draw();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [originalGrid, transformedGrid, transformedVector, eigenvectors, eigenvalues, showEigen, showGrid, showVector, pcaData, pcaResult, currentMode]);
 
   function setupCanvas() {
@@ -306,7 +312,7 @@ export default function VektorPage() {
 
     for (let i = 0; i < eigenvectors.length; i++) {
       const eigenvec = eigenvectors[i];
-      let eigenval = Array.isArray(eigenvalues) ? eigenvalues[i] : eigenvalues;
+      const eigenval = Array.isArray(eigenvalues) ? eigenvalues[i] : eigenvalues;
 
       let isComplex = false;
       let realPart = 0;
@@ -347,7 +353,7 @@ export default function VektorPage() {
     }
   }
 
-  function drawPCA(ctx: CanvasRenderingContext2D, toCanvas: (x: number, y: number) => { x: number; y: number }, width: number, height: number, centerX: number, centerY: number) {
+  function drawPCA(ctx: CanvasRenderingContext2D, toCanvas: (x: number, y: number) => { x: number; y: number }, _width: number, _height: number, _centerX: number, _centerY: number) {
     ctx.fillStyle = '#8b5cf6';
     ctx.beginPath();
     pcaData!.forEach(point => {
@@ -419,7 +425,7 @@ export default function VektorPage() {
       const result = await response.json();
       setPcaResult(result);
       setCurrentMode('PCA');
-    } catch (err: any) {
+    } catch {
       alert('Error computing PCA. Make sure the backend is running.');
     }
   }

@@ -1,7 +1,7 @@
+import numpy as np
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-import numpy as np
 
 # Handle imports for both local development (from api/) and Docker (from /app)
 try:
@@ -106,14 +106,14 @@ async def eigen(request: MatrixRequest):
     # Convert complex numbers to JSON-serializable format
     def convert_complex(obj):
         """Convert complex numbers to [real, imaginary] format"""
-        if isinstance(obj, (complex, np.complex128, np.complex64)):
+        if isinstance(obj, (complex, np.complex128, np.complex64)):  # noqa: UP038
             return [float(obj.real), float(obj.imag)]
         elif isinstance(obj, np.ndarray):
             return [convert_complex(x) for x in obj]
-        elif isinstance(obj, (list, tuple)):
+        elif isinstance(obj, (list, tuple)):  # noqa: UP038
             return [convert_complex(x) for x in obj]
         else:
-            return float(obj) if isinstance(obj, (np.floating, np.integer)) else obj
+            return float(obj) if isinstance(obj, (np.floating, np.integer)) else obj  # noqa: UP038
 
     eigenvalues_list = convert_complex(eigenvalues)
     eigenvectors_list = convert_complex(eigenvectors)

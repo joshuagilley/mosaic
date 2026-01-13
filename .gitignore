@@ -44,3 +44,8 @@ env/
 venv/
 ENV/
 .venv
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+dist/
+build/
