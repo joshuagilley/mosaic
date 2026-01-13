@@ -354,9 +354,11 @@ export default function VektorPage() {
   }
 
   function drawPCA(ctx: CanvasRenderingContext2D, toCanvas: (x: number, y: number) => { x: number; y: number }, _width: number, _height: number, _centerX: number, _centerY: number) {
+    if (!pcaData || !pcaResult) return;
+    
     ctx.fillStyle = '#8b5cf6';
     ctx.beginPath();
-    pcaData!.forEach(point => {
+    pcaData.forEach(point => {
       const p = toCanvas(point[0], point[1]);
       ctx.arc(p.x, p.y, 4, 0, 2 * Math.PI);
       ctx.fill();
