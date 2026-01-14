@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import APIRouter, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 # Import sub-app routers
@@ -6,9 +6,10 @@ from fastapi.middleware.cors import CORSMiddleware
 try:
     from data_science.vektor.routes import router as vektor_router
 except ImportError:
-    # This branch is for Docker when running from /app
-    # Mypy config handles import-not-found, but we need to ignore no-redef
-    from api.data_science.vektor.routes import router as vektor_router  # type: ignore[no-redef]
+    try:
+        from api.data_science.vektor.routes import router as vektor_router
+    except ImportError:
+        vektor_router = APIRouter()
 
 app = FastAPI(title="Mosaic API")
 
