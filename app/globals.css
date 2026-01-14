@@ -30,3 +30,34 @@ body {
     transform: translate(-50%, -50%) scale(1);
   }
 }
+
+/* Honeycomb grid using explicit rows with flexbox */
+.hexagon-main {
+  --s: 160px;  /* size  */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.hex-row {
+  display: flex;
+  justify-content: center;
+  gap: 0px;
+  margin-top: calc(var(--s) * -0.2886); /* overlap for honeycomb interlock */
+}
+
+.hex-row:first-child {
+  margin-top: 0; /* no overlap for first row */
+}
+
+.hex-row.offset {
+  transform: translateX(calc(var(--s) / 1000)); /* half hex width for pointy-top stagger */
+}
+
+.hexagon-item {
+  width: var(--s);
+  height: calc(var(--s) * 1.1547);
+  flex-shrink: 0;
+  clip-path: polygon(0% 25%, 0% 75%, 50% 100%, 100% 75%, 100% 25%, 50% 0%);
+  position: relative;
+}

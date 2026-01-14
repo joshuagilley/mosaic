@@ -6,26 +6,22 @@ import { useState } from 'react';
 export default function Home() {
   const [hoveredTile, setHoveredTile] = useState<number | null>(null);
 
-  // Top-level CS topics arranged in circular pattern
-  // Using polar coordinates: (radius, angle) where angle is in degrees
+  // Top-level CS topics arranged in honeycomb pattern
+  // Arranged for 2-3-2 pattern with Computer Science (id: 0) in center
   const tiles = [
-    // Center
-    { id: 0, name: 'Computer Science', path: '#', description: 'Explore CS Topics', radius: 0, angle: 0, color: 'from-purple-500 to-purple-600' },
+    // Top row (2 hexagons) - Algorithms first, then Data Science to the right
+    { id: 5, name: 'Algorithms & Theory', path: '#', description: 'Computational theory', color: 'from-indigo-500 to-indigo-600', subTopics: ['Coming Soon', 'Coming Soon', 'Coming Soon', 'Coming Soon', 'Coming Soon', 'Coming Soon'] },
+    { id: 1, name: 'Data Science', path: '/data-science', description: 'Data analysis & visualization', color: 'from-blue-500 to-blue-600', subTopics: ['Vektor', 'Coming Soon', 'Coming Soon', 'Coming Soon', 'Coming Soon', 'Coming Soon'] },
     
-    // Outer ring (8 hexagons for main CS topics)
-    { id: 1, name: 'Data Science', path: '/data-science', description: 'Data analysis & visualization', radius: 1, angle: 0, color: 'from-blue-500 to-blue-600', subTopics: ['Vektor', 'Coming Soon', 'Coming Soon', 'Coming Soon', 'Coming Soon', 'Coming Soon'] }, // Top
-    { id: 2, name: 'AI/ML', path: '#', description: 'Artificial Intelligence', radius: 1, angle: 45, color: 'from-green-500 to-green-600', subTopics: ['Coming Soon', 'Coming Soon', 'Coming Soon', 'Coming Soon', 'Coming Soon', 'Coming Soon'] }, // Top-right
-    { id: 3, name: 'Software Engineering', path: '#', description: 'Development practices', radius: 1, angle: 90, color: 'from-yellow-500 to-yellow-600', subTopics: ['Coming Soon', 'Coming Soon', 'Coming Soon', 'Coming Soon', 'Coming Soon', 'Coming Soon'] }, // Right
-    { id: 4, name: 'Cybersecurity', path: '#', description: 'Security & privacy', radius: 1, angle: 135, color: 'from-red-500 to-red-600', subTopics: ['Coming Soon', 'Coming Soon', 'Coming Soon', 'Coming Soon', 'Coming Soon', 'Coming Soon'] }, // Bottom-right
-    { id: 5, name: 'Algorithms & Theory', path: '#', description: 'Computational theory', radius: 1, angle: 180, color: 'from-indigo-500 to-indigo-600', subTopics: ['Coming Soon', 'Coming Soon', 'Coming Soon', 'Coming Soon', 'Coming Soon', 'Coming Soon'] }, // Bottom
-    { id: 6, name: 'Computer Systems', path: '#', description: 'Systems & architecture', radius: 1, angle: 225, color: 'from-teal-500 to-teal-600', subTopics: ['Coming Soon', 'Coming Soon', 'Coming Soon', 'Coming Soon', 'Coming Soon', 'Coming Soon'] }, // Bottom-left
-    { id: 7, name: 'HCI', path: '#', description: 'Human-Computer Interaction', radius: 1, angle: 270, color: 'from-pink-500 to-pink-600', subTopics: ['Coming Soon', 'Coming Soon', 'Coming Soon', 'Coming Soon', 'Coming Soon', 'Coming Soon'] }, // Left
-    { id: 8, name: 'Graphics', path: '#', description: 'Computer graphics', radius: 1, angle: 315, color: 'from-orange-500 to-orange-600', subTopics: ['Coming Soon', 'Coming Soon', 'Coming Soon', 'Coming Soon', 'Coming Soon', 'Coming Soon'] }, // Top-left
+    // Middle row (3 hexagons - Computer Science center, Software Engineering swapped to right)
+    { id: 6, name: 'Computer Systems', path: '#', description: 'Systems & architecture', color: 'from-teal-500 to-teal-600', subTopics: ['Coming Soon', 'Coming Soon', 'Coming Soon', 'Coming Soon', 'Coming Soon', 'Coming Soon'] },
+    { id: 0, name: 'Computer Science', path: '#', description: 'Explore CS Topics', color: 'from-purple-500 to-purple-600' },
+    { id: 3, name: 'Software Engineering', path: '#', description: 'Development practices', color: 'from-yellow-500 to-yellow-600', subTopics: ['Coming Soon', 'Coming Soon', 'Coming Soon', 'Coming Soon', 'Coming Soon', 'Coming Soon'] },
+    
+    // Bottom row (2 hexagons)
+    { id: 2, name: 'AI/ML', path: '#', description: 'Artificial Intelligence', color: 'from-green-500 to-green-600', subTopics: ['Coming Soon', 'Coming Soon', 'Coming Soon', 'Coming Soon', 'Coming Soon', 'Coming Soon'] },
+    { id: 4, name: 'Cybersecurity', path: '#', description: 'Security & privacy', color: 'from-red-500 to-red-600', subTopics: ['Coming Soon', 'Coming Soon', 'Coming Soon', 'Coming Soon', 'Coming Soon', 'Coming Soon'] },
   ];
-
-  // Hexagon size and spacing
-  const hexSize = 100; // Size of hexagon (distance from center to vertex)
-  const hexSpacing = 2.2; // Multiplier for spacing between hexagons
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-8 md:p-24 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
@@ -36,26 +32,60 @@ export default function Home() {
 
         {/* Hexagonal Mosaic Layout */}
         <div className="flex justify-center items-center min-h-[600px] md:min-h-[700px]">
-          <div className="relative" style={{ width: `${hexSize * hexSpacing * 4}px`, height: `${hexSize * hexSpacing * 4}px` }}>
-            {tiles.map((tile) => {
-              // Convert polar to cartesian coordinates
-              const angleRad = (tile.angle * Math.PI) / 180;
-              const x = tile.radius * hexSize * hexSpacing * Math.cos(angleRad);
-              const y = tile.radius * hexSize * hexSpacing * Math.sin(angleRad);
-              
-              return (
-                <HexagonTile
-                  key={tile.id}
-                  tile={tile}
-                  x={x}
-                  y={y}
-                  size={hexSize}
-                  hoveredTile={hoveredTile}
-                  setHoveredTile={setHoveredTile}
-                  allTiles={tiles}
-                />
-              );
-            })}
+          <div className="hexagon-main">
+            {/* Row 1: 2 hexagons (offset) */}
+            <div className="hex-row offset">
+              <HexagonTile
+                tile={tiles[0]}
+                index={0}
+                hoveredTile={hoveredTile}
+                setHoveredTile={setHoveredTile}
+              />
+              <HexagonTile
+                tile={tiles[1]}
+                index={1}
+                hoveredTile={hoveredTile}
+                setHoveredTile={setHoveredTile}
+              />
+            </div>
+            
+            {/* Row 2: 3 hexagons (center row, no offset) */}
+            <div className="hex-row">
+              <HexagonTile
+                tile={tiles[2]}
+                index={2}
+                hoveredTile={hoveredTile}
+                setHoveredTile={setHoveredTile}
+              />
+              <HexagonTile
+                tile={tiles[3]}
+                index={3}
+                hoveredTile={hoveredTile}
+                setHoveredTile={setHoveredTile}
+              />
+              <HexagonTile
+                tile={tiles[4]}
+                index={4}
+                hoveredTile={hoveredTile}
+                setHoveredTile={setHoveredTile}
+              />
+            </div>
+            
+            {/* Row 3: 2 hexagons (offset) */}
+            <div className="hex-row offset">
+              <HexagonTile
+                tile={tiles[5]}
+                index={5}
+                hoveredTile={hoveredTile}
+                setHoveredTile={setHoveredTile}
+              />
+              <HexagonTile
+                tile={tiles[6]}
+                index={6}
+                hoveredTile={hoveredTile}
+                setHoveredTile={setHoveredTile}
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -65,77 +95,45 @@ export default function Home() {
 
 function HexagonTile({ 
   tile, 
-  x, 
-  y, 
-  size,
+  index,
   hoveredTile,
-  setHoveredTile,
-  allTiles
+  setHoveredTile
 }: { 
-  tile: { id: number; name: string; path: string; description: string; radius: number; angle: number; color: string; subTopics?: string[] }; 
-  x: number; 
-  y: number; 
-  size: number;
+  tile: { id: number; name: string; path: string; description: string; color: string; subTopics?: string[] }; 
+  index: number;
   hoveredTile: number | null;
   setHoveredTile: (id: number | null) => void;
-  allTiles: Array<{ id: number; name: string; path: string; description: string; radius: number; angle: number; color: string; subTopics?: string[] }>;
 }) {
   const isClickable = tile.path !== '#';
-  const isCenter = tile.radius === 0;
+  const isCenter = tile.id === 0; // Center is the one with id 0, not necessarily index 0
   const isHovered = hoveredTile === tile.id;
   const hasHoveredTile = hoveredTile !== null && hoveredTile !== tile.id;
-  const subHexSize = size * 0.4; // Smaller sub-hexagons
-  const subHexSpacing = 1.3; // Spacing for sub-hexagons
+  
+  const hexSize = 160;
+  const subHexSize = hexSize * 0.5;
+  const subHexSpacing = 1.6;
   
   // Calculate push-away effect for non-hovered tiles
-  let pushX = 0;
-  let pushY = 0;
   let pushScale = 1;
   let pushOpacity = 1;
   
   if (hasHoveredTile && !isHovered && !isCenter) {
-    const hoveredTileData = allTiles.find(t => t.id === hoveredTile);
-    if (hoveredTileData) {
-      const hoveredAngleRad = (hoveredTileData.angle * Math.PI) / 180;
-      const hoveredX = hoveredTileData.radius * size * 2.2 * Math.cos(hoveredAngleRad);
-      const hoveredY = hoveredTileData.radius * size * 2.2 * Math.sin(hoveredAngleRad);
-      
-      // Calculate direction away from hovered tile
-      const dx = x - hoveredX;
-      const dy = y - hoveredY;
-      const distance = Math.sqrt(dx * dx + dy * dy);
-      const pushDistance = size * 1.5; // How far to push
-      
-      if (distance > 0) {
-        pushX = (dx / distance) * pushDistance;
-        pushY = (dy / distance) * pushDistance;
-      }
-      
-      pushScale = 0.6; // Scale down non-hovered tiles
-      pushOpacity = 0.3; // Fade out non-hovered tiles
-    }
+    pushScale = 0.6;
+    pushOpacity = 0.3;
   }
-  
-  // Create hexagon points for clip-path
-  const hexPoints = Array.from({ length: 6 }, (_, i) => {
-    const angle = (Math.PI / 3) * i;
-    const px = 50 + 50 * Math.cos(angle);
-    const py = 50 + 50 * Math.sin(angle);
-    return `${px}% ${py}%`;
-  }).join(', ');
 
   // Generate sub-hexagon positions (6 around the main hexagon)
-  const subHexPositions = isClickable && tile.subTopics ? tile.subTopics.map((_, index) => {
-    const subAngle = (index * 60 - 90) * (Math.PI / 180); // Start at top, 60 degrees apart
-    const subX = Math.cos(subAngle) * (size * subHexSpacing);
-    const subY = Math.sin(subAngle) * (size * subHexSpacing);
-    return { x: subX, y: subY, name: tile.subTopics?.[index] || 'Coming Soon' };
+  const subHexPositions = isClickable && tile.subTopics ? tile.subTopics.map((_, subIndex) => {
+    const subAngle = (subIndex * 60 - 90) * (Math.PI / 180);
+    const subX = Math.cos(subAngle) * (hexSize * subHexSpacing);
+    const subY = Math.sin(subAngle) * (hexSize * subHexSpacing);
+    return { x: subX, y: subY, name: tile.subTopics?.[subIndex] || 'Coming Soon' };
   }) : [];
 
   const content = (
     <div
       className={`
-        absolute
+        hexagon-item
         transition-all duration-700 ease-out
         flex flex-col items-center justify-center
         ${isClickable 
@@ -146,12 +144,7 @@ function HexagonTile({
         }
       `}
       style={{
-        left: `calc(50% + ${x + pushX}px)`,
-        top: `calc(50% + ${y + pushY}px)`,
-        transform: `translate(-50%, -50%) ${isHovered && isClickable ? 'scale(1.5)' : `scale(${pushScale})`}`,
-        width: `${size * 2}px`,
-        height: `${size * 2}px`,
-        clipPath: `polygon(${hexPoints})`,
+        transform: isHovered && isClickable ? 'scale(1.2)' : `scale(${pushScale})`,
         zIndex: isHovered ? 100 : (isClickable ? 10 : 1),
         opacity: isHovered ? 1 : pushOpacity,
       }}
@@ -164,10 +157,10 @@ function HexagonTile({
         p-4 md:p-6
         transition-all duration-700
         ${isClickable 
-          ? `bg-gradient-to-br ${tile.color} dark:${tile.color} text-white border-2 border-opacity-50 shadow-lg ${isHovered ? 'shadow-2xl' : ''}` 
+          ? `bg-gradient-to-br ${tile.color} dark:${tile.color} text-white shadow-lg ${isHovered ? 'shadow-2xl' : ''}` 
           : isCenter
-            ? 'bg-gradient-to-br from-gray-400 to-gray-500 dark:from-gray-600 dark:to-gray-700 text-white border-2 border-gray-500 dark:border-gray-600'
-            : 'bg-gradient-to-br from-gray-300 to-gray-400 dark:from-gray-700 dark:to-gray-800 text-gray-700 dark:text-gray-300 border-2 border-gray-400 dark:border-gray-600'
+            ? 'bg-gradient-to-br from-gray-400 to-gray-500 dark:from-gray-600 dark:to-gray-700 text-white'
+            : 'bg-gradient-to-br from-gray-300 to-gray-400 dark:from-gray-700 dark:to-gray-800 text-gray-700 dark:text-gray-300'
         }
       `}>
         <h3 className={`${isCenter ? 'text-xl md:text-2xl' : 'text-base md:text-lg'} font-bold mb-1 md:mb-2 text-center transition-all duration-700 ${isHovered ? 'scale-110' : ''}`}>
@@ -181,27 +174,24 @@ function HexagonTile({
       {/* Sub-hexagons that appear on hover */}
       {isHovered && isClickable && subHexPositions.length > 0 && (
         <div className="absolute inset-0 pointer-events-none">
-          {subHexPositions.map((subHex, index) => {
-            const subHexPoints = Array.from({ length: 6 }, (_, i) => {
-              const angle = (Math.PI / 3) * i;
-              const px = 50 + 50 * Math.cos(angle);
-              const py = 50 + 50 * Math.sin(angle);
-              return `${px}% ${py}%`;
-            }).join(', ');
+          {subHexPositions.map((subHex, subIndex) => {
+            const subHexH = Math.round(subHexSize * 1.1547);
+            const subHexClip = "polygon(0% 25%, 0% 75%, 50% 100%, 100% 75%, 100% 25%, 50% 0%)";
 
             return (
               <div
-                key={index}
+                key={subIndex}
                 className="absolute transition-all duration-500 ease-out"
                 style={{
                   left: `calc(50% + ${subHex.x}px)`,
                   top: `calc(50% + ${subHex.y}px)`,
                   transform: 'translate(-50%, -50%)',
-                  width: `${subHexSize * 2}px`,
-                  height: `${subHexSize * 2}px`,
-                  clipPath: `polygon(${subHexPoints})`,
+                  width: `${subHexSize}px`,
+                  height: `${subHexH}px`,
+                  clipPath: subHexClip,
+                  WebkitClipPath: subHexClip,
                   opacity: 0,
-                  animation: `fadeIn 0.4s ease-out ${index * 80}ms forwards`,
+                  animation: `fadeIn 0.4s ease-out ${subIndex * 80}ms forwards`,
                 }}
               >
                 <div className={`
@@ -228,7 +218,7 @@ function HexagonTile({
 
   if (isClickable) {
     return (
-      <Link href={tile.path} className="block">
+      <Link href={tile.path} className="inline-block align-top">
         {content}
       </Link>
     );
