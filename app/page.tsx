@@ -95,7 +95,7 @@ export default function Home() {
 
 function HexagonTile({ 
   tile, 
-  index,
+  index: _index,
   hoveredTile,
   setHoveredTile
 }: { 
@@ -110,8 +110,6 @@ function HexagonTile({
   const hasHoveredTile = hoveredTile !== null && hoveredTile !== tile.id;
   
   const hexSize = 160;
-  const subHexSize = hexSize * 0.5;
-  const subHexSpacing = 1.6;
   
   // Calculate push-away effect for non-hovered tiles
   let pushScale = 1;
@@ -127,7 +125,6 @@ function HexagonTile({
   const calculateHoneycombPositions = (centerX: number, centerY: number, hexSize: number, items: string[], spacing: number = 5) => {
     const hexHeight = hexSize * 1.1547; // Height of pointy-top hexagon
     const rowOverlap = hexHeight * 0.2886; // Vertical overlap between rows (matches CSS margin-top: -0.2886)
-    const rowOffsetX = hexSize / 2; // Horizontal shift for offset rows - half hex width to nest into gaps
     
     // Add subtle spacing (fixed pixel amount) to distances
     const horizontalDistance = hexSize + spacing;
