@@ -47,21 +47,6 @@ const eigenDecomposition2x2 = (m: number[][]) => {
   const det = determinant2x2(m);
   const disc = trace * trace - 4 * det;
 
-  if (disc < 0) {
-    const real = trace / 2;
-    const imag = Math.sqrt(Math.abs(disc)) / 2;
-    return {
-      eigenvalues: [
-        [real, imag],
-        [real, -imag],
-      ] as (number | number[])[],
-      eigenvectors: [
-        [1, 0],
-        [0, 1],
-      ],
-    };
-  }
-
   const sqrtDisc = Math.sqrt(disc);
   const lambda1 = (trace + sqrtDisc) / 2;
   const lambda2 = (trace - sqrtDisc) / 2;
@@ -92,7 +77,7 @@ export default function VektorPage() {
   const [vector] = useState([2, 1]);
   const [transformedVector, setTransformedVector] = useState([2, 1]);
   const [eigenvectors, setEigenvectors] = useState<number[][] | null>(null);
-  const [eigenvalues, setEigenvalues] = useState<number[] | number[][] | null>(null);
+  const [eigenvalues, setEigenvalues] = useState<number[] | null>(null);
   const [determinant, setDeterminant] = useState(1);
   const [showEigen, setShowEigen] = useState(true);
   const [showGrid, setShowGrid] = useState(true);
@@ -346,48 +331,26 @@ export default function VektorPage() {
     ctx.stroke();
   }
 
-  function drawEigenvectors(ctx: CanvasRenderingContext2D, eigenvectors: number[][], eigenvalues: number[] | number[][], toCanvas: (x: number, y: number) => { x: number; y: number }, width: number, height: number, centerX: number, centerY: number) {
+  function drawEigenvectors(ctx: CanvasRenderingContext2D, eigenvectors: number[][], eigenvalues: number[], toCanvas: (x: number, y: number) => { x: number; y: number }, width: number, height: number, centerX: number, centerY: number) {
     const length = 3.0;
 
     for (let i = 0; i < eigenvectors.length; i++) {
       const eigenvec = eigenvectors[i];
-      const eigenval = Array.isArray(eigenvalues) ? eigenvalues[i] : eigenvalues;
+      const eigenval = eigenvalues[i] ?? 0;
 
-      let isComplex = false;
-      let realPart = 0;
-      let imagPart = 0;
-
-      if (Array.isArray(eigenval) && eigenval.length === 2) {
-        realPart = eigenval[0];
-        imagPart = eigenval[1];
-        isComplex = Math.abs(imagPart) > 1e-10;
-      } else {
-        realPart = typeof eigenval === 'number' ? eigenval : parseFloat(String(eigenval)) || 0;
-        imagPart = 0;
-      }
-
-      const magnitude = isComplex ? Math.sqrt(realPart * realPart + imagPart * imagPart) : Math.abs(realPart);
-      const scaledLength = length * magnitude;
+      const scaledLength = length * Math.abs(eigenval);
       const x = eigenvec[0] * scaledLength;
       const y = eigenvec[1] * scaledLength;
 
       const p = toCanvas(x, y);
-      const sign = realPart >= 0 ? 1 : -1;
+      const sign = eigenval >= 0 ? 1 : -1;
       ctx.strokeStyle = sign >= 0 ? '#10b981' : '#f59e0b';
       ctx.lineWidth = 3.5;
       drawArrow(ctx, centerX, centerY, p.x, p.y);
 
       ctx.fillStyle = sign >= 0 ? '#10b981' : '#f59e0b';
       ctx.font = 'bold 12px sans-serif';
-      let label;
-      if (isComplex && Math.abs(imagPart) > 0.01) {
-        const realStr = realPart.toFixed(2);
-        const imagStr = Math.abs(imagPart).toFixed(2);
-        const signStr = imagPart >= 0 ? '+' : '-';
-        label = `λ${i + 1} = ${realStr}${signStr}${imagStr}i`;
-      } else {
-        label = `λ${i + 1} = ${realPart.toFixed(2)}`;
-      }
+      const label = `λ${i + 1} = ${eigenval.toFixed(2)}`;
       ctx.fillText(label, p.x + 10, p.y - 10);
     }
   }

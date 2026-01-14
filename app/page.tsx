@@ -52,13 +52,6 @@ const GRADIENT_MAP: Record<string, { color: string; from: number; to: number }> 
 
 const clampShade = (shade: number) => Math.min(900, Math.max(100, Math.round(shade / 50) * 50));
 
-const shiftGradient = (gradient: string, step: number = -100) => {
-  const parsed = GRADIENT_MAP[gradient];
-  if (!parsed) return gradient;
-  const nextFrom = clampShade(parsed.from + step);
-  const nextTo = clampShade(parsed.to + step);
-  return `from-${parsed.color}-${nextFrom} to-${parsed.color}-${nextTo}`;
-};
 
 const createChildTiles = (parentId: string, color: string, depth: number) =>
   Array.from({ length: 6 }).map((_, idx) => ({
@@ -521,8 +514,8 @@ function HexagonTile({
   onKeyDown,
   nameInputRef,
   addSubTile,
-  tiles,
-  setTiles,
+  tiles: _tiles,
+  setTiles: _setTiles,
   applyTesserae,
   openNotes,
 }: {
