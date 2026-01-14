@@ -3,6 +3,87 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import Link from 'next/link';
 
+const determinant2x2 = (m: number[][]) => m[0][0] * m[1][1] - m[0][1] * m[1][0];
+
+const multiplyMatrixVector = (m: number[][], v: number[]) => [
+  m[0][0] * v[0] + m[0][1] * v[1],
+  m[1][0] * v[0] + m[1][1] * v[1],
+];
+
+const transformPoints = (pts: number[][], m: number[][]) => pts.map(p => multiplyMatrixVector(m, p));
+
+const generateGrid = (size = 20, rangeVal = 4.0) => {
+  const points: number[][] = [];
+  const step = (2 * rangeVal) / (size - 1);
+
+  // Horizontal lines
+  for (let i = 0; i < size; i++) {
+    const y = -rangeVal + i * step;
+    for (let j = 0; j < size; j++) {
+      const x = -rangeVal + j * step;
+      points.push([x, y]);
+    }
+  }
+
+  // Vertical lines
+  for (let j = 0; j < size; j++) {
+    const x = -rangeVal + j * step;
+    for (let i = 0; i < size; i++) {
+      const y = -rangeVal + i * step;
+      points.push([x, y]);
+    }
+  }
+
+  return points;
+};
+
+const eigenDecomposition2x2 = (m: number[][]) => {
+  const a = m[0][0];
+  const b = m[0][1];
+  const c = m[1][0];
+  const d = m[1][1];
+
+  const trace = a + d;
+  const det = determinant2x2(m);
+  const disc = trace * trace - 4 * det;
+
+  if (disc < 0) {
+    const real = trace / 2;
+    const imag = Math.sqrt(Math.abs(disc)) / 2;
+    return {
+      eigenvalues: [
+        [real, imag],
+        [real, -imag],
+      ] as (number | number[])[],
+      eigenvectors: [
+        [1, 0],
+        [0, 1],
+      ],
+    };
+  }
+
+  const sqrtDisc = Math.sqrt(disc);
+  const lambda1 = (trace + sqrtDisc) / 2;
+  const lambda2 = (trace - sqrtDisc) / 2;
+
+  const buildVector = (lambda: number) => {
+    if (Math.abs(b) > Math.abs(c)) {
+      return [b, lambda - a];
+    }
+    return [lambda - d, c];
+  };
+
+  const normalize = (v: number[]) => {
+    const norm = Math.hypot(v[0], v[1]) || 1;
+    return [v[0] / norm, v[1] / norm];
+  };
+
+  return {
+    eigenvalues: [lambda1, lambda2],
+    eigenvectors: [normalize(buildVector(lambda1)), normalize(buildVector(lambda2))],
+  };
+};
+
 export default function VektorPage() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [matrix, setMatrix] = useState([[1, 0], [0, 1]]);
@@ -26,77 +107,35 @@ export default function VektorPage() {
   const [currentMode, setCurrentMode] = useState('Transform');
   const [error, setError] = useState<string | null>(null);
 
-  const API_BASE = typeof window !== 'undefined' ? window.location.origin : '';
-
-  const updateMatrix = useCallback(async () => {
+  const updateMatrix = useCallback(() => {
     try {
-      // Transform grid
-      const transformResponse = await fetch(`${API_BASE}/api/data-science/vektor/transform`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          matrix: matrix,
-          grid_size: 20,
-          grid_range: 4.0
-        })
-      });
+      const grid = generateGrid(20, 4.0);
+      const transformed = transformPoints(grid, matrix);
+      setOriginalGrid(grid);
+      setTransformedGrid(transformed);
 
-      if (!transformResponse.ok) {
-        throw new Error(`API error: ${transformResponse.status}`);
-      }
+      const transformedVec = [
+        matrix[0][0] * vector[0] + matrix[0][1] * vector[1],
+        matrix[1][0] * vector[0] + matrix[1][1] * vector[1],
+      ];
+      setTransformedVector(transformedVec);
 
-      const transformData = await transformResponse.json();
-      setOriginalGrid(transformData.original || []);
-      setTransformedGrid(transformData.transformed || []);
+      setDeterminant(matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0]);
 
-      // Transform vector
-      const vectorArray = [vector];
-      const vectorResponse = await fetch(`${API_BASE}/api/data-science/vektor/transform`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          matrix: matrix,
-          points: vectorArray
-        })
-      });
-
-      if (!vectorResponse.ok) {
-        throw new Error(`Vector API error: ${vectorResponse.status}`);
-      }
-
-      const vectorData = await vectorResponse.json();
-      if (vectorData.transformed && vectorData.transformed[0]) {
-        setTransformedVector(vectorData.transformed[0]);
-      }
-
-      // Compute determinant
-      const detResponse = await fetch(`${API_BASE}/api/data-science/vektor/determinant`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ matrix: matrix })
-      });
-
-      const detData = await detResponse.json();
-      setDeterminant(detData.determinant);
-
-      // Compute eigenvalues/eigenvectors
       if (showEigen) {
-        const eigenResponse = await fetch(`${API_BASE}/api/data-science/vektor/eigen`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ matrix: matrix })
-        });
-
-        const eigenData = await eigenResponse.json();
-        setEigenvalues(eigenData.eigenvalues);
-        setEigenvectors(eigenData.eigenvectors);
+        const { eigenvalues: vals, eigenvectors: vecs } = eigenDecomposition2x2(matrix);
+        setEigenvalues(vals);
+        setEigenvectors(vecs);
+      } else {
+        setEigenvalues(null);
+        setEigenvectors(null);
       }
 
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error');
     }
-  }, [matrix, vector, showEigen, API_BASE]);
+  }, [matrix, vector, showEigen]);
 
   useEffect(() => {
     if (canvasRef.current) {
@@ -411,25 +450,54 @@ export default function VektorPage() {
     setPcaData(data);
   }
 
-  async function computePCA() {
+  function computePCA() {
     if (!pcaData || pcaData.length === 0) {
       alert('Please generate sample data first!');
       return;
     }
 
-    try {
-      const response = await fetch(`${API_BASE}/api/data-science/vektor/pca`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ data: pcaData })
-      });
+    const n = pcaData.length;
+    const mean = pcaData.reduce((acc, [x, y]) => [acc[0] + x, acc[1] + y], [0, 0]).map(v => v / n);
 
-      const result = await response.json();
-      setPcaResult(result);
-      setCurrentMode('PCA');
-    } catch {
-      alert('Error computing PCA. Make sure the backend is running.');
-    }
+    const centered = pcaData.map(([x, y]) => [x - mean[0], y - mean[1]]);
+
+    let sxx = 0;
+    let syy = 0;
+    let sxy = 0;
+    centered.forEach(([x, y]) => {
+      sxx += x * x;
+      syy += y * y;
+      sxy += x * y;
+    });
+    sxx /= n;
+    syy /= n;
+    sxy /= n;
+
+    const { eigenvalues: vals, eigenvectors: vecs } = eigenDecomposition2x2([
+      [sxx, sxy],
+      [sxy, syy],
+    ]);
+
+    const eigenPairs = Array.isArray(vals) ? vals.map((v, i) => ({ value: Array.isArray(v) ? v[0] : v, vec: vecs[i] })) : [];
+    const sorted = eigenPairs.sort((a, b) => (b.value ?? 0) - (a.value ?? 0));
+
+    const totalVar = sorted.reduce((acc, p) => acc + (p.value ?? 0), 0) || 1;
+    const principal_components = sorted.map(p => p.vec);
+    const explained_variance = sorted.map(p => (p.value ?? 0) / totalVar);
+
+    setPcaResult({
+      principal_components,
+      explained_variance,
+      projected_data: centered.map(([x, y]) => {
+        const [pc1, pc2] = principal_components;
+        return [
+          pc1 ? x * pc1[0] + y * pc1[1] : 0,
+          pc2 ? x * pc2[0] + y * pc2[1] : 0,
+        ];
+      }),
+      mean,
+    });
+    setCurrentMode('PCA');
   }
 
   return (

@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Mosaic - Math Python Environment",
-  description: "A sandbox environment for mathematical computing and exploration",
+  title: "Mosaic",
+  description: "Start your journey with Mosaic",
 };
 
 export default function RootLayout({
