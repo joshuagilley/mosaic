@@ -33,7 +33,7 @@ body {
 
 /* Honeycomb grid using explicit rows with flexbox */
 .hexagon-main {
-  --s: 160px;  /* size  */
+  --s: 160px; /* size */
   display: flex;
   flex-direction: column;
   align-items: center;
