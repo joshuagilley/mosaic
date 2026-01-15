@@ -1,12 +1,12 @@
 # Mosaic
 
-A sandbox environment for mathematical computing and exploration. Built with Next.js and deployed on Fly.io.
+A sandbox environment for mathematical computing and exploration. Built with Nuxt 4 and deployed on Fly.io.
 
 ## Features
 
 - **Vektor**: Interactive linear algebra playground (all computations happen in the browser)
 - Hexagonal mosaic interface for navigating different tools
-- Next.js frontend with TypeScript
+- Nuxt 4 frontend with SSR and Tailwind CSS
 
 ## Setup
 
@@ -38,7 +38,7 @@ npm run dev
 
 Open your browser: http://localhost:3000
 
-### Testing / linting
+### Linting
 
 ```bash
 npm run lint
@@ -46,13 +46,11 @@ npm run lint
 
 ### Code Formatting
 
-```bash
-npm run format
-```
+Use your preferred formatter (Nuxt/Tailwind do not add one by default).
 
 ## Pre-commit Hooks
 
-The pre-commit hook runs ESLint. If it fails, the commit will be blocked. To bypass (not recommended):
+The pre-commit hook runs `npm run lint`. If it fails, the commit will be blocked. To bypass (not recommended):
 ```bash
 git commit --no-verify
 ```
@@ -61,10 +59,13 @@ git commit --no-verify
 
 ```
 mosaic/
-├── app/                    # Next.js app directory
-│   ├── page.tsx           # Home page with mosaic layout
-│   ├── vektor/            # Vektor linear algebra playground
+├── pages/                 # Nuxt routes
+│   ├── index.vue          # Home page with mosaic layout
+│   ├── data-science/      # Data science routes
 │   └── ...
+├── components/            # Vue components
+├── assets/                # Global styles
+├── nuxt.config.ts         # Nuxt configuration
 ├── Dockerfile             # Docker configuration
 ├── fly.toml               # Fly.io deployment config
 ├── pre-commit.sh          # Pre-commit hook script

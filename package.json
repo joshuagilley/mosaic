@@ -2,8 +2,9 @@
   "name": "mosaic",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
-    "dev": "nuxt dev",
+    "dev": "CHOKIDAR_USEPOLLING=1 CHOKIDAR_INTERVAL=1000 nuxt dev",
     "build": "nuxt build",
     "preview": "nuxt preview",
     "start": "node .output/server/index.mjs",
@@ -11,7 +12,7 @@
   },
   "dependencies": {
     "nuxt": "^4.0.0",
-    "@nuxtjs/tailwindcss": "^7.0.0"
+    "@nuxtjs/tailwindcss": "^6.14.0"
   },
   "devDependencies": {
     "tailwindcss": "^3.4.1",
